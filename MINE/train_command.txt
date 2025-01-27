@@ -1,0 +1,2 @@
+
+python train.py --img 512 --epochs 10 --data NPS_v1.yaml --weights yolov5s.ptzhel
