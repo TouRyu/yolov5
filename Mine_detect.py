@@ -216,10 +216,19 @@ def run(
         csv_path = save_dir / "predictions.csv"
 
         # Create or append to the CSV file
-        def write_to_csv(image_name, prediction, confidence):
+        def write_to_csv(image_name, input_size, prediction, confidence,coords_str,croped_image_size, crop_filename):
             """Writes prediction data for an image to a CSV file, appending if the file exists."""
-            data = {"Image Name": image_name, "Prediction": prediction, "Confidence": confidence}
+            data = {
+                "Image Name": image_name,
+                "input_size":input_size,
+                "Prediction": prediction,
+                "Confidence": confidence,
+                "Coordinates": coords_str,       # 或者将 coords 各自分开存
+                "size": croped_image_size,
+                "Crop File": crop_filename       # 保存裁剪后文件名称
+            }
             file_exists = os.path.isfile(csv_path)
+
             with open(csv_path, mode="a", newline="") as f:
                 writer = csv.DictWriter(f, fieldnames=data.keys())
                 if not file_exists:
@@ -253,7 +262,7 @@ def run(
 
                 # Write results
                 # modified 20250205 adding square cropping
-                for *xyxy, conf, cls in reversed(det):
+                for j, (*xyxy, conf, cls) in enumerate(reversed(det)):
                     c = int(cls)  # integer class
                 
                     # 原始坐标
@@ -269,14 +278,16 @@ def run(
                     y1_square = int(max(cy - L / 2, 0))
                     x2_square = int(min(cx + L / 2, im0.shape[1]))
                     y2_square = int(min(cy + L / 2, im0.shape[0]))    
-
+                    
+                    #writting in log
+                    coords_str=f"[{x1_square}, {y1_square}, {x2_square}, {y2_square}] "
+                    croped_image_size = L
+                    input_size = f"({im0.shape[1]}, {im0.shape[0]})"
 
                     label = names[c] if hide_conf else f"{names[c]}"
                     confidence = float(conf)
                     confidence_str = f"{confidence:.2f}"
-
-                    if save_csv:
-                        write_to_csv(p.name, label, confidence_str)
+                    
 
                     if save_txt:  # Write to file
                         if save_format == 0:
@@ -290,8 +301,9 @@ def run(
                             f.write(("%g " * len(line)).rstrip() % line + "\n")
 
                     if save_img or save_crop or view_img:  # Add bbox to image
-                        c = int(cls)  # integer class
-                        crop_path = save_dir / "crops" / names[c] / f"{p.stem}_square.jpg"
+                        #c = int(cls)  # integer class
+                        crop_filename = f"{p.stem}_square_{i}_{j}.jpg"
+                        crop_path = save_dir / "crops" / names[c] / crop_filename
                         os.makedirs(crop_path.parent, exist_ok=True)
                         # 使用 OpenCV 进行裁剪并保存
                         crop_img = imc[y1_square:y2_square, x1_square:x2_square]
@@ -299,8 +311,20 @@ def run(
                         label = None if hide_labels else (names[c] if hide_conf else f"{names[c]} {conf:.2f}")
                         annotator.box_label([x1_square, y1_square, x2_square, y2_square], label, color=colors(c, True))
 
-                    if save_crop:
-                        save_one_box([x1_square, y1_square, x2_square, y2_square], imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
+                    if save_csv:
+                            write_to_csv(
+                                p.name,           # 原图名称
+                                input_size,
+                                label,            # 预测类别名称
+                                confidence_str,   # 置信度
+                                coords_str,       # 四点坐标
+                                croped_image_size,
+                                crop_filename     # 裁剪后图像名称
+                            )
+
+
+                    #if save_crop:
+                    #    save_one_box(torch.tensor([x1_square, y1_square, x2_square, y2_square]), imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
 
             # Stream results
             im0 = annotator.result()

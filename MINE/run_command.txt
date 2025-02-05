@@ -1,10 +1,10 @@
 #detect
-python detect.py \
-  --weights yolov5s.pt \
-  --source data/images \
+python /home/tangls/project-ML/yolov5/yolov5/Mine_detect.py \
+  --weights /home/tangls/project-ML/yolov5/yolov5/runs/train/exp7/weights/best.pt \
+  --source /home/tangls/project-ML/yolov5/datasets/Test/detect_test/images \
   --imgsz 640 640 \
-  --conf-thres 0.25 \
-  --iou-thres 0.45 \
+  --conf-thres 0.35 \
+  --iou-thres 0.55 \
   --save-txt \
   --save-csv \
   --save-crop \
