@@ -1,2 +1,30 @@
 
-python train.py --img 512 --epochs 10 --data NPS_v1.yaml --weights yolov5s.ptzhel
+python train.py --img 512 --epochs 10 --data NPS_v2.yaml --weights yolov5s.pt
+
+python -m torch.distributed.run --nproc_per_node=3 --master_port=12345 train.py --epochs 10 --data NPS_v2.yaml --weights yolov5s.pt --img 640 --batch-size 18
+
+python val.py --weights /home/tangls/project-ML/yolov5/yolov5/runs/train/exp4/weights/best.pt --data /home/tangls/project-ML/yolov5/datasets/NPS_v1/NPS_v1.yaml --imgsz 512 --conf-thres 0.51 --iou-thres 0.45 
+
+
+
+
+
+#explanation
+python val.py \
+  --weights yolov5s.pt \                    # 指定权重文件路径，可以更改为自己的模型路径
+  --data data/coco128.yaml \                # 指定数据集配置文件路径
+  --batch-size 16 \                         # 设置验证批量大小
+  --imgsz 640 \                             # 设置输入图像尺寸
+  --conf-thres 0.25 \                       # 设置置信度阈值，过滤低置信度框
+  --iou-thres 0.45 \                        # 设置NMS的IoU阈值
+  --max-det 100 \                           # 每张图像最大检测目标数量
+  --task val \                              # 指定任务类型为验证 (val)
+  --device 0 \                              # 指定使用的设备（0为GPU，cpu为CPU）
+  --workers 4 \                             # 设置数据加载器的线程数
+  --save-txt \                              # 保存检测结果到文本文件中
+  --save-conf \                             # 保存检测结果的置信度
+  --save-json \                             # 保存COCO格式的检测结果文件
+  --project runs/val \                      # 指定实验结果存储的主目录
+  --name exp1 \                             # 指定实验结果存储的子目录
+  --exist-ok \                              # 如果目录已存在，覆盖旧结果
+  --half                                    # 使用半精度推理（节省显存并提高速度）

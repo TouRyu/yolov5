@@ -1,0 +1,17 @@
+path: ../datasets/NPS_v2_AUG
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['NP_oxide']
+
+roboflow:
+  workspace: hvem
+  project: nps-0yqpx
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/hvem/nps-0yqpx/dataset/2
+
+
+

@@ -1,0 +1,14 @@
+#detect
+python detect.py \
+  --weights yolov5s.pt \
+  --source data/images \
+  --imgsz 640 640 \
+  --conf-thres 0.25 \
+  --iou-thres 0.45 \
+  --save-txt \
+  --save-csv \
+  --save-crop \
+  --view-img \
+  --line-thickness 3 \
+  --project runs/detect \
+  --name exp_square

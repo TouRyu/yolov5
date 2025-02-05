@@ -466,6 +466,7 @@ def train(hyp, opt, device, callbacks):
                     plots=False,
                     callbacks=callbacks,
                     compute_loss=compute_loss,
+                    conf_thres=opt.conf_thres,
                 )
 
             # Update best mAP
@@ -612,6 +613,9 @@ def parse_opt(known=False):
     # NDJSON logging
     parser.add_argument("--ndjson-console", action="store_true", help="Log ndjson to console")
     parser.add_argument("--ndjson-file", action="store_true", help="Log ndjson to file")
+
+    #modified 20250127 for addding confidence thers
+    parser.add_argument('--conf-thres', type=float, default=0.25, help='object confidence threshold')
 
     return parser.parse_known_args()[0] if known else parser.parse_args()
 
